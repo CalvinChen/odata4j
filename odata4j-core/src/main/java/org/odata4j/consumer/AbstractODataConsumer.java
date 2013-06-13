@@ -59,9 +59,17 @@ public abstract class AbstractODataConsumer implements ODataConsumer {
   public OQueryRequest<OEntity> getEntities(String entitySetHref) {
     return getEntities(OEntity.class, entitySetHref);
   }
+  
+  public OQueryRequest<OEntity> getEntities(String entitySetHref, Boolean preloadEntitySet) {
+	  return getEntities(OEntity.class, entitySetHref, preloadEntitySet);
+  }
 
   public <T> OQueryRequest<T> getEntities(Class<T> entityType, String entitySetHref) {
     return new ConsumerQueryEntitiesRequest<T>(getClient(), entityType, getServiceRootUri(), getMetadata(), entitySetHref);
+  }
+  
+  public <T> OQueryRequest<T> getEntities(Class<T> entityType, String entitySetHref, Boolean preloadEntitySet) {
+	  return new ConsumerQueryEntitiesRequest<T>(getClient(), entityType, getServiceRootUri(), getMetadata(), entitySetHref, preloadEntitySet);
   }
 
   public OEntityGetRequest<OEntity> getEntity(ORelatedEntityLink link) {

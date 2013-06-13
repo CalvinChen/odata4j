@@ -189,6 +189,8 @@ public interface ODataConsumer {
    * @return a new query-request builder
    */
   OQueryRequest<OEntity> getEntities(String entitySetHref);
+  
+  OQueryRequest<OEntity> getEntities(String entitySetHref, Boolean preloadEntitySet);
 
   /**
    * Gets entities from the given entity-set.  The entities will be represented as the given java-type.

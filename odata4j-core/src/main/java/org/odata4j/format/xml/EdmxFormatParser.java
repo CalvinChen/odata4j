@@ -43,6 +43,11 @@ import org.odata4j.stax2.StartElement2;
 import org.odata4j.stax2.XMLEvent2;
 import org.odata4j.stax2.XMLEventReader2;
 
+/**
+ * EDM 解析
+ * @author calvin
+ *
+ */
 public class EdmxFormatParser extends XmlFormatParser {
 
   private static final Set<String> NON_USER_NAMESPACES = Enumerable.create(
@@ -54,6 +59,11 @@ public class EdmxFormatParser extends XmlFormatParser {
 
   public EdmxFormatParser() {}
 
+  /**
+   * 解析元数据
+   * @param reader
+   * @return
+   */
   public EdmDataServices parseMetadata(XMLEventReader2 reader) {
     List<EdmSchema.Builder> schemas = new ArrayList<EdmSchema.Builder>();
     List<PrefixedNamespace> namespaces = null;
@@ -124,22 +134,24 @@ public class EdmxFormatParser extends XmlFormatParser {
       for (EdmEntityType.Builder eet : edmSchema.getEntityTypes()) {
         List<EdmNavigationProperty.Builder> navProps = eet.getNavigationProperties();
         for (int i = 0; i < navProps.size(); i++) {
-          final EdmNavigationProperty.Builder tmp = navProps.get(i);
-          final EdmAssociation.Builder ea = allEasByFQName.get(tmp.getRelationshipName());
-          if (ea == null)
-            throw new IllegalArgumentException("Invalid relationship name " + tmp.getRelationshipName());
+          final EdmNavigationProperty.Builder navProp = navProps.get(i);
+          final EdmAssociation.Builder edmAsso = allEasByFQName.get(navProp.getRelationshipName());
+          if (edmAsso == null)
+            throw new IllegalArgumentException("Invalid relationship name " + navProp.getRelationshipName());
 
-          List<EdmAssociationEnd.Builder> finalEnds = Enumerable.create(tmp.getFromRoleName(), tmp.getToRoleName()).select(new Func1<String, EdmAssociationEnd.Builder>() {
+          List<EdmAssociationEnd.Builder> finalEnds = Enumerable.create(navProp.getFromRoleName(), 
+        		  		navProp.getToRoleName()).select(new Func1<String, EdmAssociationEnd.Builder>() {
             public EdmAssociationEnd.Builder apply(String input) {
-              if (ea.getEnd1().getRole().equals(input))
-                return ea.getEnd1();
-              if (ea.getEnd2().getRole().equals(input))
-                return ea.getEnd2();
-              throw new IllegalArgumentException("Invalid role name " + input);
+              if (edmAsso.getEnd1().getRole().equals(input))
+                return edmAsso.getEnd1();
+              if (edmAsso.getEnd2().getRole().equals(input))
+                return edmAsso.getEnd2();
+              return edmAsso.getEnd1();
+//              throw new IllegalArgumentException("Invalid role name " + input); TODO
             }
           }).toList();
 
-          tmp.setRelationship(ea).setFromTo(finalEnds.get(0), finalEnds.get(1));
+          navProp.setRelationship(edmAsso).setFromTo(finalEnds.get(0), finalEnds.get(1));
         }
       }
 
@@ -171,8 +183,9 @@ public class EdmxFormatParser extends XmlFormatParser {
                       ea.getEnd1().getRole().equals(input.getRoleName()) ? ea.getEnd1()
                           : ea.getEnd2().getRole().equals(input.getRoleName()) ? ea.getEnd2() : null;
 
-                  if (eae == null)
-                    throw new IllegalArgumentException("Invalid role name " + input.getRoleName());
+                  if (eae == null) {
+//                	  throw new IllegalArgumentException("Invalid role name " + input.getRoleName()); TODO
+                  }
 
                   EdmEntitySet.Builder ees = Enumerable.create(edmEntityContainer.getEntitySets()).first(OPredicates.nameEquals(EdmEntitySet.Builder.class, input.getEntitySetName()));
                   return EdmAssociationSetEnd.newBuilder().setRole(eae).setEntitySet(ees)

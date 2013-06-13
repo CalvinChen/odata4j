@@ -37,16 +37,22 @@ public abstract class AbstractConsumerQueryRequestBase<T> implements OQueryReque
   private final Map<String, String> customs = new HashMap<String, String>();
 
   public AbstractConsumerQueryRequestBase(ODataClient client, String serviceRootUri, EdmDataServices metadata, String lastSegment) {
+	  this(client, serviceRootUri, metadata, lastSegment, true);
+  }
+
+  public AbstractConsumerQueryRequestBase(ODataClient client, String serviceRootUri, EdmDataServices metadata, String lastSegment, Boolean preloadEntitySet) {
     this.client = client;
     this.serviceRootUri = serviceRootUri;
     this.metadata = metadata;
     this.lastSegment = lastSegment;
 
-    this.entitySet = metadata.findEdmEntitySet(lastSegment);
-    if (this.entitySet == null) {
-      EdmFunctionImport function = metadata.findEdmFunctionImport(lastSegment);
-      if (function != null)
-        this.entitySet = function.getEntitySet();
+    if(preloadEntitySet) {
+        this.entitySet = metadata.findEdmEntitySet(lastSegment);
+        if (this.entitySet == null) {
+          EdmFunctionImport function = metadata.findEdmFunctionImport(lastSegment);
+          if (function != null)
+            this.entitySet = function.getEntitySet();
+        }
     }
   }
 
@@ -66,7 +72,7 @@ public abstract class AbstractConsumerQueryRequestBase<T> implements OQueryReque
     return metadata;
   }
 
-  protected ODataClientRequest buildRequest(Func1<String, String> pathModification) {
+  public ODataClientRequest buildRequest(Func1<String, String> pathModification) {
     String path = Enumerable.create(segments).join("/");
     path += (path.length() == 0 ? "" : "/") + lastSegment;
     if (pathModification != null)

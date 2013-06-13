@@ -3,6 +3,8 @@ package org.odata4j.core;
 import java.util.Iterator;
 
 import org.core4j.Enumerable;
+import org.core4j.Func1;
+import org.odata4j.consumer.ODataClientRequest;
 import org.odata4j.exceptions.ODataProducerException;
 
 /**
@@ -104,4 +106,5 @@ public interface OQueryRequest<T> {
    */
   OQueryRequest<T> expand(String expand);
 
+  ODataClientRequest buildRequest(Func1<String, String> pathModification); 
 }

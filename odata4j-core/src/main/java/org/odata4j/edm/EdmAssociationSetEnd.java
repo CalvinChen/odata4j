@@ -65,6 +65,8 @@ public class EdmAssociationSetEnd extends EdmItem {
     }
 
     public EdmAssociationSetEnd build() {
+    	if(this.role == null || this.entitySet == null) 
+    		throw new RuntimeException("Null!");
       return new EdmAssociationSetEnd(role.build(), entitySet.build(), getDocumentation(),
           ImmutableList.copyOf(getAnnotations()), ImmutableList.copyOf(getAnnotationElements()));
     }
