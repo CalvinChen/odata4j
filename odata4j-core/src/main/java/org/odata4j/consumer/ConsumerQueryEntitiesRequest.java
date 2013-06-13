@@ -30,6 +30,11 @@ public class ConsumerQueryEntitiesRequest<T> extends AbstractConsumerQueryReques
     super(client, serviceRootUri, metadata, entitySetName);
     this.entityType = entityType;
   }
+  
+  public ConsumerQueryEntitiesRequest(ODataClient client, Class<T> entityType, String serviceRootUri, EdmDataServices metadata, String entitySetName, Boolean preloadEntitySet) {
+	  super(client, serviceRootUri, metadata, entitySetName, preloadEntitySet);
+	  this.entityType = entityType;
+  }
 
   @Override
   public Enumerable<T> execute() throws ODataProducerException {
